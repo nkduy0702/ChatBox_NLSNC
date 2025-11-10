@@ -1,23 +1,25 @@
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import ChatBox from "./chatbox";
+import "./App.css";
+
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="app-container">
+      <aside className="sidebar">
+        <div className="sidebar-header">
+          <h2>SmartEdu AI</h2>
+          <p className="subtitle">Trợ lý học tập thông minh</p>
+        </div>
+        <div className="sidebar-info">
+          <p>🌐 Chủ đề: <strong>Giáo dục</strong></p>
+          <p>🤖 Model: GEMINI</p>
+        </div>
+      </aside>
+
+      <main className="chat-area">
+        <ChatBox />
+      </main>
     </div>
   );
 }
