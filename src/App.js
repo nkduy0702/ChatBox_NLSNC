@@ -49,10 +49,12 @@ function App() {
 
         <div className="sidebar-info">
           <div>
-            <strong>📚 Chủ đề:</strong>{" "}
+            <strong>📚 Chủ đề:</strong>
+            <span> Công nghệ phần mềm</span>
           </div>
           <div>
-            <strong>🤖 Model:</strong> Gemma3 (Finetune - Model)
+            <strong>🤖 Model:</strong>
+            <span> Gemma3 (Finetune - Model)</span>
           </div>
         </div>
       </aside>
