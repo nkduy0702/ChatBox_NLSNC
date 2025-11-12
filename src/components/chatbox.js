@@ -19,25 +19,49 @@ function ChatBox({ selectedChat }) {
   const handleSend = async () => {
     if (!input.trim() || loading) return; // không gửi nếu đang loading
 
-    const userMessage = { role: "user", text: input };
-    setMessages((prev) => [...prev, userMessage]);
+    const newMessages = { role: "user", content: input };
+    setMessages((msg) => [...msg, newMessages]);
+
+    const bodyChat = {
+      model: "mymodel:latest",
+      messages: [{ role: "user", content: input }],
+      stream: false,
+    };
     setInput("");
     setLoading(true); // bắt đầu gửi
 
     try {
-      const res = await fetch("http://127.0.0.1:5000/chat", {
+      const res = await fetch("http://localhost:11434/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: input }),
+        body: JSON.stringify(bodyChat),
       });
-
-      const data = await res.json();
-      const botMessage = { role: "bot", text: data.response };
-
-      setMessages((prev) => [...prev, botMessage]);
+      // Giải mã dữ liệu sau trả về
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let data;
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value);
+        const lines = chunk.split("\n").filter(Boolean);
+        for (const line of lines) {
+          data = JSON.parse(line);
+        }
+      }
+      if (data.message) {
+        const assistantMessage = {
+          role: data.message.role,
+          content: data.message.content,
+        };
+        setMessages((prev) => [...prev, assistantMessage]);
+      }
     } catch (err) {
       console.error("❌ Lỗi gửi tin nhắn:", err);
-      const errorMessage = { role: "bot", text: "❌ Có lỗi xảy ra khi gửi tin nhắn." };
+      const errorMessage = {
+        role: "assistant",
+        text: "❌ Có lỗi xảy ra khi gửi tin nhắn.",
+      };
       setMessages((prev) => [...prev, errorMessage]);
     } finally {
       setLoading(false); // AI trả lời xong
@@ -59,7 +83,7 @@ function ChatBox({ selectedChat }) {
         ) : (
           messages.map((msg, i) => (
             <div key={i} className={`msg ${msg.role}`}>
-              <div className="bubble">{msg.text}</div>
+              <div className="bubble">{msg.content}</div>
             </div>
           ))
         )}

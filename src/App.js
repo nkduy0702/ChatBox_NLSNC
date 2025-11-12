@@ -47,11 +47,14 @@ function App() {
           <History history={history} onSelectHistory={handleSelectHistory} />
         </div>
 
-         <div className="sidebar-info">
-            <div><strong>📚 Chủ đề:</strong> Ngôn ngữ lập trình</div>
-            <div><strong>🤖 Model:</strong> Gemma3 (Python + RAG)</div>
-         </div>
-
+        <div className="sidebar-info">
+          <div>
+            <strong>📚 Chủ đề:</strong>{" "}
+          </div>
+          <div>
+            <strong>🤖 Model:</strong> Gemma3 (Finetune - Model)
+          </div>
+        </div>
       </aside>
 
       {/* Main Chat */}
