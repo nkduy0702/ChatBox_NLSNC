@@ -23,7 +23,7 @@ function ChatBox({ selectedChat }) {
     setMessages((msg) => [...msg, newMessages]);
 
     const bodyChat = {
-      model: "mymodel:latest",
+      model: "gemma-3-software:latest",
       messages: [{ role: "user", content: input }],
       stream: false,
     };
