@@ -26,7 +26,9 @@ function App() {
   // 🟩 Tạo session mới khi nhấn nút
   const handleNewSession = async () => {
     try {
-      const res = await fetch("http://127.0.0.1:5000/sessions", { method: "POST" });
+      const res = await fetch("http://127.0.0.1:5000/sessions", {
+        method: "POST",
+      });
       const newSession = await res.json();
       setCurrentSession(newSession);
       setSessions((prev) => [newSession, ...prev]);
@@ -61,8 +63,12 @@ function App() {
         <History history={sessions} onSelectHistory={handleSelectSession} />
 
         <div className="sidebar-info">
-          <div><strong>📚 Chủ đề:</strong> Ngôn ngữ lập trình</div>
-          <div><strong>🤖 Model:</strong> Gemma3 (Python + RAG)</div>
+          <div>
+            <strong>📚 Chủ đề:</strong> Ngôn ngữ lập trình
+          </div>
+          <div>
+            <strong>🤖 Model:</strong> Gemma3 (Python + RAG)
+          </div>
         </div>
       </aside>
 
