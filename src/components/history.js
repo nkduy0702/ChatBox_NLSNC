@@ -1,7 +1,7 @@
 import React from "react";
 import "./history.css";
 
-function History({ history, onSelectHistory }) {
+function History({ history, onSelectHistory, currentSessionId }) {
   return (
     <div className="history-section">
       <div className="history-list">
@@ -11,11 +11,16 @@ function History({ history, onSelectHistory }) {
           history.map((h) => (
             <div
               key={h.id}
-              className="history-item"
+              className={`history-item ${h.id === currentSessionId ? "active" : ""}`}
               onClick={() => onSelectHistory(h.id)}
+              title={h.topic || "Không có chủ đề"}
             >
+              <div className="question">
+                {h.topic
+                  ? h.topic.slice(0, 30) + (h.topic.length > 30 ? "..." : "")
+                  : "Không có chủ đề"}
+              </div>
               <div className="timestamp">{h.timestamp}</div>
-              <div className="question">💬 {h.topic || "Không có chủ đề"}</div>
             </div>
           ))
         )}

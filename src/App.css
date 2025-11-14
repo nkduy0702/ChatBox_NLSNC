@@ -82,6 +82,58 @@ body {
   overflow: hidden;
 }
 
+/* Nút Tạo Chat mới */
+.new-session-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* khoảng cách giữa icon và text */
+  background: linear-gradient(90deg, #3b82f6, #2563eb); /* gradient giống ChatGPT */
+  color: #fff;
+  font-weight: 500;
+  font-size: 0.95rem;
+  padding: 10px 14px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  margin: 15px 0;
+  transition: all 0.2s ease;
+  text-align: left; /* không căn giữa */
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+}
+
+.new-session-btn:hover {
+  background: linear-gradient(90deg, #1d4ed8, #1e40af);
+  transform: translateX(2px);
+}
+
+.new-session-btn .icon {
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+}
+/* From Uiverse.io by felipesntr */
+button.new-btn {
+  border: 2px solid #24b4fb;
+  background-color: #24b4fb;
+  border-radius: 0.9em;
+  cursor: pointer;
+  padding: 0.4em 1.8em;
+  transition: all ease-in-out 0.2s;
+  font-size: 16px;
+  margin-top: 24px;
+}
+
+button.new-btn span {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #fff;
+  font-weight: 600;
+}
+
+button.new-btn:hover {
+  background-color: #0071e2;
+}
 
 
 
