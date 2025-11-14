@@ -8,14 +8,14 @@ function History({ history, onSelectHistory }) {
         {history.length === 0 ? (
           <p className="no-history">Chưa có hội thoại nào.</p>
         ) : (
-          history.map((h, i) => (
+          history.map((h) => (
             <div
-              key={i}
+              key={h.id}
               className="history-item"
-              onClick={() => onSelectHistory(h.id)} // ✅ Gọi callback khi click
+              onClick={() => onSelectHistory(h.id)}
             >
               <div className="timestamp">{h.timestamp}</div>
-              <div className="question">👨‍💻 {h.user}</div>
+              <div className="question">💬 {h.topic || "Không có chủ đề"}</div>
             </div>
           ))
         )}
