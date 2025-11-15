@@ -1,0 +1,13 @@
+flask
+flask-cors
+langchain
+ollama
+sentence-transformers
+pymupdf
+langchain-community
+langchain-huggingface
+langchain-ollama
+langchain-text-splitters
+
+google-generativeai
+pandas==2.1.0
