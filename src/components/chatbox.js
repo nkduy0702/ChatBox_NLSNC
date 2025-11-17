@@ -19,7 +19,55 @@ function ChatBox({ currentSession, setCurrentSession, setSessions }) {
   const handleSend = async () => {
     if (!input.trim() || loading) return;
     setLoading(true);
+    // for finetune model Ollama
+    // const newMessages = { role: "user", content: input };
+    // setMessages((msg) => [...msg, newMessages]);
 
+    // const bodyChat = {
+    //   model: "gemma-3-software:latest",
+    //   messages: [{ role: "user", content: input }],
+    //   stream: false,
+    // };
+
+    // try {
+    //     const res = await fetch("http://localhost:11434/api/chat", {
+    //         method: "POST",
+    //         headers: { "Content-Type": "application/json" },
+    //         body: JSON.stringify(bodyChat),
+    //     });
+    //     // Giải mã dữ liệu sau trả về
+    //     const reader = res.body.getReader();
+    //     const decoder = new TextDecoder();
+    //     let data;
+    //     while (true) {
+    //         const { done, value } = await reader.read();
+    //         if (done) break;
+    //         const chunk = decoder.decode(value);
+    //         const lines = chunk.split("\n").filter(Boolean);
+    //         for (const line of lines) {
+    //         data = JSON.parse(line);
+    //         }
+    //     }
+    //     if (data.message) {
+    //         const assistantMessage = {
+    //         role: data.message.role,
+    //         content: data.message.content,
+    //         };
+    //         setMessages((prev) => [...prev, assistantMessage]);
+    //     }
+    //     } catch (err) {
+    //     console.error("❌ Lỗi gửi tin nhắn:", err);
+    //     const errorMessage = {
+    //         role: "assistant",
+    //         text: "❌ Có lỗi xảy ra khi gửi tin nhắn.",
+    //     };
+    //     setMessages((prev) => [...prev, errorMessage]);
+    //     } finally {
+    //     setLoading(false); // AI trả lời xong
+    //     }
+    // };
+
+    // for vector database
     const userMessage = { role: "user", text: input };
     // ✅ Hiển thị ngay user message
     setMessages((prev) => [...prev, userMessage]);
