@@ -17,9 +17,7 @@
   width: 100%;
   margin: 0 auto;
   border-radius: 16px;
-  background: var(--secondary);
   backdrop-filter: blur(10px);
-  box-shadow: 0 0 25px var(--shadow);
   overflow: hidden;
 }
 
@@ -61,10 +59,15 @@
   line-height: 1.5;
   word-wrap: break-word;
   animation: fadeIn 0.3s ease;
+  margin: 4px 0; /* giảm khoảng cách giữa các tin nhắn */
 }
 
 .msg.user {
   justify-content: flex-end;
+}
+
+.msg.user p {
+  margin: 0px 4px;
 }
 
 .msg.bot {
@@ -107,9 +110,8 @@
 /* Input và nút gửi */
 .chat-input {
   display: flex;
-  background-color: var(--secondary);
   border-top: 1px solid var(--border);
-  padding: 14px;
+  padding: 14px 4px;
   align-items: center;
   gap: 10px;
 }
@@ -122,7 +124,7 @@
   outline: none;
   font-size: 1rem;
   border-radius: 10px;
-  padding: 12px 14px;
+  padding: 18px;
   transition: all 0.25s ease;
 }
 
@@ -134,12 +136,13 @@
 .chat-input button {
   background-color: var(--primary);
   border: none;
-  padding: 10px 20px;
+  padding: 18px;
   border-radius: 10px;
   cursor: pointer;
   color: white;
   font-weight: 500;
   transition: all 0.25s ease;
+  transform: translateY(0px);
 }
 
 .chat-input button:hover {
@@ -177,4 +180,118 @@
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
+}
+
+/* ========== Markdown Styling ========== */
+
+/* Áp dụng cho nội dung Markdown trong bubble bot */
+.msg.bot .bubble {
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+/* Định dạng tiêu đề Markdown */
+.msg.bot .bubble h1,
+.msg.bot .bubble h2,
+.msg.bot .bubble h3,
+.msg.bot .bubble h4,
+.msg.bot .bubble h5,
+.msg.bot .bubble h6 {
+  color: var(--text-light);
+  font-weight: 600;
+  margin: 8px 0 4px 0;
+}
+
+.msg.bot .bubble h1 { font-size: 1.3rem; border-bottom: 2px solid var(--primary); padding-bottom: 4px; }
+.msg.bot .bubble h2 { font-size: 1.2rem; border-bottom: 1px solid var(--border); padding-bottom: 2px; }
+.msg.bot .bubble h3 { font-size: 1.1rem; color: var(--primary); }
+
+/* Đoạn văn và danh sách */
+.msg.bot .bubble p {
+  margin: 6px 0;
+  color: var(--text-light);
+}
+
+.msg.bot .bubble ul,
+.msg.bot .bubble ol {
+  margin: 8px 0 8px 20px;
+  color: var(--text-light);
+}
+
+.msg.bot .bubble li {
+  margin-bottom: 4px;
+}
+
+/* Liên kết */
+.msg.bot .bubble a {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+.msg.bot .bubble a:hover {
+  text-decoration: underline;
+}
+
+/* Inline code (`code`) */
+.msg.bot .bubble code {
+  background: rgba(255, 255, 255, 0.08);
+  color: #facc15; /* vàng nhạt */
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-family: "Fira Code", monospace;
+  font-size: 0.9rem;
+}
+
+/* Code block (``` ... ```) */
+.msg.bot .bubble pre {
+  background: #1e293b;
+  color: #f1f5f9;
+  padding: 12px;
+  border-radius: 10px;
+  overflow-x: auto;
+  margin: 10px 0;
+  font-family: "Fira Code", monospace;
+  font-size: 0.9rem;
+  border: 1px solid var(--border);
+  box-shadow: 0 0 10px rgba(0,0,0,0.3);
+}
+
+/* Bảng */
+.msg.bot .bubble table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 10px 0;
+  font-size: 0.9rem;
+}
+
+.msg.bot .bubble th,
+.msg.bot .bubble td {
+  border: 1px solid var(--border);
+  padding: 6px 10px;
+}
+
+.msg.bot .bubble th {
+  background: var(--primary);
+  color: white;
+  font-weight: 600;
+}
+
+.msg.bot .bubble tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Blockquote */
+.msg.bot .bubble blockquote {
+  border-left: 4px solid var(--primary);
+  padding-left: 10px;
+  color: var(--text-gray);
+  font-style: italic;
+  margin: 10px 0;
+}
+
+/* Horizontal rule */
+.msg.bot .bubble hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 12px 0;
 }

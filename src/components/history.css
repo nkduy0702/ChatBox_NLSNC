@@ -1,41 +1,87 @@
 .history-section {
-  margin-top: 20px;
+  height: 100%;                /* FIX QUAN TRỌNG */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;            /* Ngăn vỡ giao diện khi nhiều lịch sử */
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
-.history-title {
-  font-weight: bold;
-  margin-bottom: 10px;
-}
-
+/* HISTORY LIST */
 .history-list {
-  max-height: 400px;
-  overflow-y: auto;
+  flex: 1;
+  margin-top: 14px;
+  overflow-y: auto;            /* CHỈ cuộn phần danh sách */
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-right: 6px;
+  justify-content: flex-start;
 }
 
+/* HISTORY ITEM */
 .history-item {
-  background: #1e293b;
-  padding: 10px;
-  border-radius: 8px;
-  margin-bottom: 8px;
+  font-size: 14px;
+  padding: 10px 12px;
+  border-radius: 10px;
   cursor: pointer;
-  transition: background 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  transition: background 0.2s ease, border 0.2s ease, transform 0.1s ease;
+  border: 1px solid transparent;
 }
 
 .history-item:hover {
   background: #334155;
+  border-color: #3b82f6;
+  transform: translateX(3px);
+}
+
+/* ACTIVE ITEM */
+.history-item.active {
+  background: #3b82f625;
+  border-color: #3b82f6;
+  transform: none;
+}
+
+.history-item.active:hover {
+  background: #3b82f640;
+  transform: translateX(3px);
+}
+
+/* TEXT */
+.question {
+  font-size: 0.95em;
+  color: #f1f5f9;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .timestamp {
-  font-size: 0.8em;
+  font-size: 0.75em;
   color: #94a3b8;
+  margin-top: 4px;
 }
 
-.question {
-  font-size: 0.9em;
-  color: #e2e8f0;
-}
-
+/* EMPTY */
 .no-history {
   color: #94a3b8;
   font-style: italic;
+  margin-top: 20px;
+  font-size: 0.9em;
+  text-align: left;
+}
+
+/* SCROLLBAR */
+.history-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.history-list::-webkit-scrollbar-thumb {
+  background-color: #475569;
+  border-radius: 4px;
+}
+
+.history-list::-webkit-scrollbar-track {
+  background-color: #0f172a;
 }
