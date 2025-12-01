@@ -12,16 +12,20 @@ from ollama import Client
 VECTOR_DB_PATH = "./data/embeddings"
 GEMMA_MODEL = "gemma3:1b"
 HISTORY_FILE = "./chatHistory/history.json"
-SIMILARITY_THRESHOLD = 8.0  # Ngưỡng distance để xem tài liệu có liên quan
 
 os.makedirs(os.path.dirname(HISTORY_FILE), exist_ok=True)
 
-# --- Khởi tạo vector store ---
+# --- Kiểm tra Vector DB ---
 if not os.path.exists(VECTOR_DB_PATH):
     raise RuntimeError("❌ Vector DB chưa được tạo. Hãy chạy ingest_data.py trước.")
 
-embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
+# Embedding & VectorDB
+embeddings = HuggingFaceEmbeddings(
+    model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+)
 vector_store = Chroma(persist_directory=VECTOR_DB_PATH, embedding_function=embeddings)
+
+# Model AI
 client = Client()
 
 app = Flask(__name__)
@@ -37,7 +41,7 @@ if os.path.exists(HISTORY_FILE):
 else:
     sessions = []
 
-# --- Save history ---
+# --- Lưu lịch sử ---
 def save_sessions():
     with open(HISTORY_FILE, "w", encoding="utf-8") as f:
         json.dump(sessions, f, ensure_ascii=False, indent=2)
@@ -45,16 +49,18 @@ def save_sessions():
 # --- Gọi Gemma ---
 def query_gemma(prompt: str) -> str:
     try:
-        response = client.chat(model=GEMMA_MODEL, messages=[{"role": "user", "content": prompt}])
+        response = client.chat(
+            model=GEMMA_MODEL,
+            messages=[{"role": "user", "content": prompt}]
+        )
         return response["message"]["content"]
     except Exception as e:
         print(f"---> Lỗi khi gọi Gemma: {e}")
-        return "Xin lỗi, hiện tại không thể trả lời. Vui lòng thử lại sau."
+        return "⚠️ Lỗi mô hình AI. Vui lòng thử lại sau."
 
-# --- POST /sessions ---
+# --- Tạo session ---
 @app.route("/sessions", methods=["POST"])
 def create_session():
-    global sessions
     session_id = str(uuid.uuid4())
     session = {
         "id": session_id,
@@ -66,18 +72,19 @@ def create_session():
     save_sessions()
     return jsonify(session)
 
-# --- POST /chat ---
+# --- API Chat chính ---
 @app.route("/chat", methods=["POST"])
 def chat():
     global sessions
     data = request.json
     message = data.get("message", "").strip()
     session_id = data.get("session_id")
+    threshold = float(data.get("threshold", 10))
 
     if not message:
         return jsonify({"response": "❌ Bạn chưa nhập câu hỏi."})
 
-    # --- Kiểm tra session hợp lệ ---
+    # --- Kiểm tra session ---
     if not session_id or session_id not in [s["id"] for s in sessions]:
         session_id = str(uuid.uuid4())
         current_session = {
@@ -99,58 +106,82 @@ def chat():
         {"doc": doc, "score": score, "source": doc.metadata.get("source", "Unknown")}
         for doc, score in results
     ]
-    docs = [d["doc"] for d in docs_info]
 
-    # --- PRINT để debug điểm ---
-    print("\n--- Kết quả tìm kiếm tài liệu ---")
-    for d in docs_info:
-        print(f"File: {d['source']}, Score: {d['score']:.3f}")
-    print("--------------------------------\n")
+    # --- 3 mức threshold ---
+    thresholds = [
+        threshold,
+        max(threshold - 3, 0),
+        max(threshold - 6, 0)
+    ]
 
-    # --- Lọc tài liệu theo ngưỡng ---
-    filtered_docs_info = [d for d in docs_info if d["score"] <= SIMILARITY_THRESHOLD]
-    filtered_docs = [d["doc"] for d in filtered_docs_info]
+    multi_answers = []
 
-    # --- Loại bỏ trùng tên tài liệu ---
-    seen_sources = set()
-    unique_referenced_files = []
-    for d in filtered_docs_info:
-        if d["source"] not in seen_sources:
-            unique_referenced_files.append({"name": d["source"], "score": round(d["score"], 3)})
-            seen_sources.add(d["source"])
+    for th in thresholds:
+        # Tài liệu đạt yêu cầu với threshold hiện tại
+        filtered_docs_info = [d for d in docs_info if d["score"] <= th]
+        filtered_docs = [d["doc"] for d in filtered_docs_info]
 
-    # --- Tạo prompt chuẩn ---
-    if filtered_docs:
-        context_text = "\n\n".join([d.page_content[:1000] for d in filtered_docs])[:3000]
-        prompt = (
-            f"Bạn là trợ lý thông minh hỗ trợ trả lời câu hỏi về CNTT dựa trên các tài liệu đã cho.\n"
-            f"Tài liệu tham khảo:\n{context_text}\n\n"
-            f"Câu hỏi của người dùng: {message}\n"
-            f"Hãy trả lời chính xác và chi tiết, bằng tiếng Việt, dựa trên các tài liệu. "
-            f"Đừng thêm thông tin ngoài dữ liệu."
-        )
-        answer = query_gemma(prompt)
-    else:
-        answer = "⚠️ Không có tài liệu liên quan. Bot sẽ không trả lời."
+        # Lọc trùng và lấy tài liệu tham khảo
+        seen = set()
+        referenced_files = []
+        for d in filtered_docs_info:
+            if d["source"] not in seen:
+                referenced_files.append({
+                    "name": d["source"],
+                    "score": round(d["score"], 3)
+                })
+                seen.add(d["source"])
 
-    # --- Cập nhật session, lưu lịch sử luôn ---
-    current_session["messages"].append({"role": "user", "text": message})
-    current_session["messages"].append({"role": "bot", "text": answer})
+        # Nếu không có tài liệu, bỏ qua threshold
+        if filtered_docs:
+            context_text = "\n\n".join([d.page_content[:1000] for d in filtered_docs])[:3000]
+            prompt = (
+                f"Bạn là trợ lý AI hỗ trợ CNTT dựa trên tài liệu.\n"
+                f"Threshold hiện tại: {th}\n\n"
+                f"Tài liệu tham khảo:\n{context_text}\n\n"
+                f"Câu hỏi: {message}\n"
+                f"Hãy trả lời chính xác và chỉ dựa trên tài liệu."
+            )
+            answer = query_gemma(prompt)
+            multi_answers.append({
+                "threshold": th,
+                "answer": answer,
+                "referenced_files": referenced_files
+            })
+
+    # --- Nếu không có tài liệu ở tất cả threshold ---
+    if not multi_answers:
+        multi_answers.append({
+            "threshold": threshold,
+            "answer": "⚠️ Không có tài liệu liên quan. Bot sẽ không trả lời.",
+            "referenced_files": []
+        })
+
+    # --- Lưu vào lịch sử ---
+    current_session["messages"].append({
+        "role": "user",
+        "text": message,
+        "threshold": threshold
+    })
+    current_session["messages"].append({
+        "role": "bot",
+        "threshold_used": multi_answers
+    })
     save_sessions()
 
+    # --- Trả về FE ---
     return jsonify({
-        "response": answer,
+        "responses": multi_answers,
         "session_id": session_id,
-        "timestamp": current_session["timestamp"],
-        "referenced_files": unique_referenced_files
+        "timestamp": current_session["timestamp"]
     })
 
-# --- GET /sessions ---
+# --- GET tất cả session ---
 @app.route("/sessions", methods=["GET"])
 def get_sessions():
     return jsonify([{"id": s["id"], "timestamp": s["timestamp"], "topic": s["topic"]} for s in reversed(sessions)])
 
-# --- GET /sessions/<id> ---
+# --- Lấy chi tiết session ---
 @app.route("/sessions/<session_id>", methods=["GET"])
 def get_session(session_id):
     session = next((s for s in sessions if s["id"] == session_id), None)
@@ -158,5 +189,6 @@ def get_session(session_id):
         return jsonify({"error": "Session không tồn tại"}), 404
     return jsonify(session)
 
+# --- Chạy server ---
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
